@@ -1,0 +1,14 @@
+/target
+Cargo.lock
+*.json
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+result
+.direnv/
+**/.rust-analyzer/
+**/rust-analyzer/
+*.pdb
