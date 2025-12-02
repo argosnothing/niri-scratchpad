@@ -5,14 +5,14 @@ use std::{env, fs, io};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Scratchpad {
-    id: u64,
-    command: Option<Vec<String>>,
-    scratchpad_number: i32,
+    pub id: u64,
+    pub command: Option<Vec<String>>,
+    pub scratchpad_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct State {
-    scratchpads: Vec<Scratchpad>,
+    pub scratchpads: Vec<Scratchpad>,
 }
 
 pub enum AddResult {

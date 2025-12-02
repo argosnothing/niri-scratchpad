@@ -2,12 +2,14 @@ use niri_ipc::{Request, Response, Action::{Spawn}};
 use niri_ipc::socket::Socket;
 use state::State;
 
-use crate::state::AddResult;
+use crate::state::AddResult::{Added, AlreadyExists};
+pub mod ipc;
 pub mod state;
 fn main() -> std::io::Result<()> {
     let mut args = std::env::args().skip(1);
     let state_file = State::new();
     let mut socket = Socket::connect()?;
+
     let Ok(Response::FocusedOutput(focused_output)) = socket.send(Request::FocusedOutput)? else {
         return Ok(());
     };
@@ -24,33 +26,22 @@ fn main() -> std::io::Result<()> {
                 match focused_window {
                     Some(window) => {
                         match state.add_scratchpad(scratchpad_number, window.id, None) {
-                            AddResult::Added => {
-                                state.update();
+                            Added => {
+                                state.update()?;
                             },
-                            AddResult::AlreadyExists => {
-                                print!("This is when you'd summon an existing scratch");
+                            AlreadyExists => {
+                                ipc::stash(&mut socket, &state)?;
                             },
                         }
                     },
                     None => eprintln!("No Focused window"),
                 }
             },
-            Err(err) => eprintln!("{}", err.to_string()),
+            Err(err) => eprintln!("{}", err),
         }
     } else {
         eprintln!("No Arg?");
     }
-
-    for ws in windows {
-        println!(
-            "Workspace {} (id {}), focused: {}, id: {}",
-            ws.title.unwrap_or_else(|| "<unnamed>".to_string()),
-            ws.app_id.unwrap_or_else(|| "no id".to_string()),
-            ws.is_focused,
-            ws.id
-        );
-    }
-    let command = Spawn { command: vec!["kitty".to_string()]};
 
     Ok(())
 }
