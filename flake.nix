@@ -22,8 +22,27 @@
         pkgs = import nixpkgs {
           inherit system overlays;
         };
+        rustPlatform = pkgs.makeRustPlatform {
+          cargo = pkgs.rust-bin.beta.latest.default;
+          rustc = pkgs.rust-bin.beta.latest.default;
+        };
       in
       {
+        packages.default = rustPlatform.buildRustPackage {
+          pname = "niri-scratchpad";
+          version = "0.1.0";
+          src = ./.;
+          cargoLock = {
+            lockFile = ./Cargo.lock;
+          };
+          nativeBuildInputs = with pkgs; [
+            pkg-config
+          ];
+          buildInputs = with pkgs; [
+            openssl
+          ];
+        };
+
         devShells.default =
           with pkgs;
           mkShell {
