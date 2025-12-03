@@ -80,7 +80,7 @@ impl State {
                     .collect::<Vec<String>>()
             }),
             scratchpad_number,
-            title
+            title,
         });
         Ok(())
     }
@@ -97,6 +97,22 @@ impl State {
             .iter()
             .find(|scratchpad| scratchpad.scratchpad_number == scratchpad_number)
             .cloned()
+    }
+
+    pub fn update_scratchpad_title(
+        &mut self,
+        scratchpad_number: i32,
+        title: Option<String>,
+    ) -> Result<()> {
+        let Some(scratchpad) = self
+            .scratchpads
+            .iter_mut()
+            .find(|scratchpad| scratchpad.scratchpad_number == scratchpad_number)
+        else {
+            return Ok(());
+        };
+        scratchpad.title = title;
+        Ok(())
     }
 }
 

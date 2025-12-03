@@ -133,7 +133,7 @@ fn handle_focused_window(
                 else {
                     return Ok(());
                 };
-
+                state.update_scratchpad_title(scratchpad_number, scratchpad_window.title.clone())?;
                 let Some(workspace_id) = scratchpad_window.workspace_id else {
                     return Ok(());
                 };
