@@ -20,8 +20,10 @@ This will take the currently focused window and bind it to niri-scratchpad index
 
 
 ## Removing Scratchpads
+
+Similarly to creating, you simply use the delete command to delete a register.
 ```
-niri-scratchpad delete 1
+    Mod+Ctrl+Q            { spawn "niri-scratchpad" "delete" "2"; }
 ```
 delete scratchpad at 1 register
 
