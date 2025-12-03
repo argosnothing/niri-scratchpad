@@ -1,3 +1,5 @@
+use std::io::Result;
+
 use crate::args::Output;
 use crate::scratchpad_action::ScratchpadStatus;
 use crate::state::Scratchpad;
@@ -8,7 +10,7 @@ use state::State;
 pub mod args;
 pub mod scratchpad_action;
 pub mod state;
-fn main() -> std::io::Result<()> {
+fn main() -> Result<()> {
     let state_file = State::new();
     let mut socket = Socket::connect()?;
     let args = args::Args::parse();
@@ -44,11 +46,13 @@ fn main() -> std::io::Result<()> {
                         &mut socket,
                         state,
                         scratchpad_number,
-                        window.id,
-                        window.title,
-                        window.app_id,
+                        FocusedWindowContext {
+                            window_id: window.id,
+                            title: window.title,
+                            app_id: window.app_id,
+                            current_workspace_id: current_workspace.id,
+                        },
                         output,
-                        current_workspace.id,
                     )?;
                 }
                 None => {
@@ -99,7 +103,7 @@ fn scratchpad_check(
     socket: &mut Socket,
     state: &State,
     scratchpad_number: i32,
-) -> std::io::Result<Option<ScratchpadWithStatus>> {
+) -> Result<Option<ScratchpadWithStatus>> {
     let Some(scratchpad) = state.get_scratchpad_by_number(scratchpad_number) else {
         return Ok(None);
     };
@@ -113,12 +117,9 @@ fn handle_focused_window(
     socket: &mut Socket,
     mut state: State,
     scratchpad_number: i32,
-    window_id: u64,
-    title: Option<String>,
-    app_id: Option<String>,
+    context: FocusedWindowContext,
     output: Option<Output>,
-    current_workspace_id: u64,
-) -> std::io::Result<()> {
+) -> Result<()> {
     match scratchpad_check(socket, &state, scratchpad_number) {
         Ok(Some(scratchpad_with_status)) => match scratchpad_with_status.status {
             ScratchpadStatus::WindowMapped => {
@@ -156,7 +157,7 @@ fn handle_focused_window(
                     return Ok(());
                 };
 
-                if workspace_id == current_workspace_id {
+                if workspace_id == context.current_workspace_id {
                     scratchpad_action::stash(
                         socket,
                         &state,
@@ -171,23 +172,23 @@ fn handle_focused_window(
                 if let Some(output) = output {
                     match output {
                         Output::Title => {
-                            if let Some(title) = &title {
+                            if let Some(title) = &context.title {
                                 print!("{}", title);
                             };
                         }
                         Output::AppId => {
-                            if let Some(app_id) = &app_id {
+                            if let Some(app_id) = &context.app_id {
                                 print!("{}", app_id);
                             };
                         }
                     };
                 };
-                state.add_scratchpad(scratchpad_number, window_id, title, app_id, None)?;
+                state.add_scratchpad(scratchpad_number, context.window_id, context.title, context.app_id, None)?;
                 state.update()?;
             }
         },
         Ok(None) => {
-            state.add_scratchpad(scratchpad_number, window_id, title, app_id, None)?;
+            state.add_scratchpad(scratchpad_number, context.window_id, context.title, context.app_id, None)?;
             state.update()?;
         }
         Err(_) => return Ok(()),
@@ -199,7 +200,7 @@ fn handle_no_focused_window(
     socket: &mut Socket,
     state: &State,
     scratchpad_number: i32,
-) -> std::io::Result<()> {
+) -> Result<()> {
     let Some(scratchpad) = state
         .scratchpads
         .iter()
@@ -215,4 +216,11 @@ fn handle_no_focused_window(
 struct ScratchpadWithStatus {
     status: ScratchpadStatus,
     scratchpad: Scratchpad,
+}
+
+struct FocusedWindowContext {
+    window_id: u64,
+    title: Option<String>,
+    app_id: Option<String>,
+    current_workspace_id: u64,
 }
