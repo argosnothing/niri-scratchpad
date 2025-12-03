@@ -48,18 +48,18 @@ pub fn summon(socket: &mut Socket, scratchpad: &Scratchpad) -> Result<()> {
     if focused_window.id == scratchpad.id {
         return Ok(())
     }
-    if let Some(workspace_id) = focused_window.workspace_id {
-        let move_action = MoveWindowToWorkspace {
-            window_id: Some(scratchpad.id),
-            reference: niri_ipc::WorkspaceReferenceArg::Id(workspace_id),
-            focus: (false),
-        };
-        let _ = socket.send(Request::Action(move_action));
-    };
     let move_action = MoveWindowToMonitor {
         id: Some(scratchpad.id),
         output: focused_output.name,
     };
     let _ = socket.send(Request::Action(move_action));
+    if let Some(workspace_id) = focused_window.workspace_id {
+        let move_action = MoveWindowToWorkspace {
+            window_id: Some(scratchpad.id),
+            reference: niri_ipc::WorkspaceReferenceArg::Id(workspace_id),
+            focus: (true),
+        };
+        let _ = socket.send(Request::Action(move_action));
+    };
     Ok(())
 }
