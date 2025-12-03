@@ -1,10 +1,6 @@
-# Niri Scratchpad
+# Dynamic Niri Scratchpad
 
-## This is currently a work in progress, but is technically functional for how I use scratchpads. 
-
-Niri scratchpad simply uses the currently focused window to mark a window as a scratchpad when ran. This means this is only really functional when using the scratchpad as a keybind. Window binds will persist for the user session. 
-
-You also will need to add this to your niri config: 
+Dynamically assign windows as scratchpads against numerical register.
 
 ```kdl
     workspace "stash" {
@@ -16,12 +12,9 @@ For binding to a keybind you would do:
 ```kdl
     Mod+Q            { spawn "niri-scratchpad" "create" "1"; }
 ```
-This will take the currently focused window and bind it to niri-scratchpad index 1. Pressing this keybind again will move the scratchpad to the stash workspace. 
+This will take the currently focused window and bind it to niri-scratchpad register 1. Pressing this keybind again will move the scratchpad to the stash workspace. 
 
-
-## Removing Scratchpads
-
-Similarly to creating, you simply use the delete command to delete a register.
+A separate command is available for removing a scratchpad at a particular register. 
 ```
     Mod+Ctrl+Q            { spawn "niri-scratchpad" "delete" "2"; }
 ```
