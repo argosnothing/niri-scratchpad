@@ -32,7 +32,7 @@ Currently scratchpad data is saved to `XDG_RUNTIME_DIR` under `niri-scratchpad.j
 ## Roadmap
 Assuming niri doesn't implement scratchpads natively ( We all pray ), by priority: 
 
-1. Flag Assuming ( currently scratchpad simply parses the first argument as a scratchpad index. )
+1. Flag arguments ( currently scratchpad simply parses the first argument as a scratchpad index. )
 2. Scratchad deletion 
   Typing `niri-scratchpad -d 1` should unbind the window from that scratchpad index.
 3. Spawn support
