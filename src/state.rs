@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::env::var;
 use std::io::Result;
 use std::path::PathBuf;
-use std::{env, fs, io};
+use std::{fs, io};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Scratchpad {

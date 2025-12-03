@@ -1,9 +1,9 @@
 use niri_ipc::socket::Socket;
-use niri_ipc::{Action::Spawn, Request, Response};
+use niri_ipc::{Request, Response};
 use state::State;
+pub mod scratchpad_action;
 
 use crate::state::AddResult::{Added, AlreadyExists};
-pub mod ipc;
 pub mod state;
 fn main() -> std::io::Result<()> {
     let mut args = std::env::args().skip(1);
@@ -26,7 +26,7 @@ fn main() -> std::io::Result<()> {
         return Ok(());
     };
 
-    let mut state = match state_file {
+    let state = match state_file {
         Ok(state) => state,
         Err(err) => {
             eprintln!("{}", err);
@@ -36,7 +36,13 @@ fn main() -> std::io::Result<()> {
 
     match focused_window {
         Some(window) => {
-            handle_focused_window(&mut socket, state, scratchpad_number, window.id, current_workspace.id)?;
+            handle_focused_window(
+                &mut socket,
+                state,
+                scratchpad_number,
+                window.id,
+                current_workspace.id,
+            )?;
         }
         None => {
             handle_no_focused_window(&mut socket, &state, scratchpad_number)?;
@@ -71,9 +77,9 @@ fn handle_focused_window(
             };
 
             if workspace_id == current_workspace_id {
-                ipc::stash(socket, &state, Some(scratchpad.scratchpad_number))?;
+                scratchpad_action::stash(socket, &state, Some(scratchpad.scratchpad_number))?;
             } else {
-                ipc::summon(socket, &scratchpad)?;
+                scratchpad_action::summon(socket, &scratchpad)?;
             }
         }
     }
@@ -93,6 +99,6 @@ fn handle_no_focused_window(
         return Ok(());
     };
 
-    ipc::summon(socket, scratchpad)?;
+    scratchpad_action::summon(socket, scratchpad)?;
     Ok(())
 }
