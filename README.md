@@ -10,9 +10,6 @@ You also will need to add this to your niri config:
     workspace "stash" {
         open-on-output "DP-1" // insert the output you actually have here. you can also probably just omit this as well. 
     }
-    window-rule {
-        open-floating true
-    }
 ```
 
 For binding to a keybind you would do: 
