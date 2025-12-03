@@ -1,28 +1,20 @@
+use crate::state::AddResult::{Added, AlreadyExists};
+use clap::Parser;
 use niri_ipc::socket::Socket;
 use niri_ipc::{Request, Response};
 use state::State;
+pub mod args;
 pub mod scratchpad_action;
-
-use crate::state::AddResult::{Added, AlreadyExists};
 pub mod state;
 fn main() -> std::io::Result<()> {
-    let mut args = std::env::args().skip(1);
     let state_file = State::new();
     let mut socket = Socket::connect()?;
+    let args = args::Args::parse();
 
     let Ok(Response::FocusedWindow(focused_window)) = socket.send(Request::FocusedWindow)? else {
         return Ok(());
     };
     let Ok(Response::Workspaces(workspaces)) = socket.send(Request::Workspaces)? else {
-        return Ok(());
-    };
-
-    let Some(scratchpad_number) = args.next().and_then(|s| s.parse::<i32>().ok()) else {
-        eprintln!("No Arg?");
-        return Ok(());
-    };
-
-    let Some(current_workspace) = workspaces.iter().find(|workspace| workspace.is_focused) else {
         return Ok(());
     };
 
@@ -34,20 +26,32 @@ fn main() -> std::io::Result<()> {
         }
     };
 
-    match focused_window {
-        Some(window) => {
-            handle_focused_window(
-                &mut socket,
-                state,
-                scratchpad_number,
-                window.id,
-                current_workspace.id,
-            )?;
+    match args.action {
+        args::Action::Create { scratchpad_number } => {
+            let Some(current_workspace) = workspaces.iter().find(|workspace| workspace.is_focused)
+            else {
+                return Ok(());
+            };
+
+            match focused_window {
+                Some(window) => {
+                    handle_focused_window(
+                        &mut socket,
+                        state,
+                        scratchpad_number,
+                        window.id,
+                        current_workspace.id,
+                    )?;
+                }
+                None => {
+                    handle_no_focused_window(&mut socket, &state, scratchpad_number)?;
+                }
+            }
         }
-        None => {
-            handle_no_focused_window(&mut socket, &state, scratchpad_number)?;
+        args::Action::Delete { scratchpad_number } => {
+            state.delete_scratchpad(scratchpad_number)?;
         }
-    }
+    };
 
     Ok(())
 }
