@@ -25,8 +25,18 @@ A separate command is available for removing a scratchpad at a particular regist
 delete scratchpad at register 1
 
 ## Installation
-It's just a rust binary, you'll need to build it with niri_ipc crate and serde. I provide a flake you can also consume as an input. 
+It's just a rust binary, you'll need to build it with `niri_ipc` `serde` and `clap` crates. I provide a flake you can also consume as an input. 
 ```nix
+inputs {
     niri-scratchpad.url = "github:argosnothing/niri-scratchpad";
+}
+```
+
+To put it in your path on nix:
+```nix
+
+    environment.systemPackages = [
+      inputs.niri-scratchpad.packages.${pkgs.system}.default
+    ];
 ```
 
