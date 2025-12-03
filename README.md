@@ -1,6 +1,8 @@
 # Dynamic Niri Scratchpad
 
-Dynamically assign windows as scratchpads against numerical register. The scratchpad will also manage windows that have been deleted since running the command last. If you invoke `niri-scratchpad create 1` and 1 register has been deleted since last excution, it will bind the currently focused window to that register instead as a scratchpad. 
+Dynamically assign windows as scratchpads against numerical register. 
+
+The program will also manage windows that have been deleted since running the command last. If you invoke `niri-scratchpad create 1` and register 1 has been deleted since last excution, it will bind the currently focused window to that register instead as a scratchpad. 
 
 ```kdl
     workspace "stash" {
