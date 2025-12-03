@@ -7,7 +7,7 @@ use niri_ipc::{
     Request, Response,
 };
 // Ensures all scratchpads are stashed
-pub fn stash(socket: &mut Socket, state: &State) -> Result<()> {
+pub fn stash(socket: &mut Socket, state: &State, scratchpad_number: Option<i32>) -> Result<()> {
     let Ok(Response::Windows(windows)) = socket.send(Request::Windows)? else {
         return Ok(());
     };
@@ -21,11 +21,19 @@ pub fn stash(socket: &mut Socket, state: &State) -> Result<()> {
         return Ok(());
     };
     for window in windows.iter().filter(|window| {
-        state
-            .scratchpads
-            .iter()
-            .any(|scratchpad| scratchpad.id == window.id)
-    }) {
+        match scratchpad_number {
+            Some(scratch_num) => {
+                state.scratchpads.iter().any(|scratchpad| scratchpad.scratchpad_number == scratch_num && scratchpad.id  == window.id)
+            },
+            None => {
+                state
+                .scratchpads
+                .iter()
+                .any(|scratchpad| scratchpad.id == window.id)
+            }
+        }
+    }
+    ) {
         let move_action = MoveWindowToWorkspace {
             window_id: Some(window.id),
             reference: niri_ipc::WorkspaceReferenceArg::Id(stash_workspace.id),

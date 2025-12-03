@@ -71,7 +71,7 @@ fn handle_focused_window(
             };
 
             if workspace_id == current_workspace_id {
-                ipc::stash(socket, &state)?;
+                ipc::stash(socket, &state, Some(scratchpad.scratchpad_number))?;
             } else {
                 ipc::summon(socket, &scratchpad)?;
             }
