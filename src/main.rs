@@ -1,5 +1,3 @@
-use std::clone;
-
 use crate::args::Output;
 use crate::scratchpad_action::ScratchpadStatus;
 use crate::state::Scratchpad;
@@ -115,14 +113,6 @@ fn handle_focused_window(
     match scratchpad_check(socket, &state, scratchpad_number) {
         Ok(Some(scratchpad_with_status)) => match scratchpad_with_status.status {
             ScratchpadStatus::WindowMapped => {
-                match output {
-                    Some(Output::Title) => {
-                        if let Some(title) = &scratchpad_with_status.scratchpad.title {
-                            print!("{}", title)
-                        };
-                    },
-                    None => (),
-                };
                 let Ok(Response::Windows(windows)) = socket.send(Request::Windows)? else {
                     return Ok(());
                 };
@@ -132,6 +122,14 @@ fn handle_focused_window(
                     .find(|w| w.id == scratchpad_with_status.scratchpad.id)
                 else {
                     return Ok(());
+                };
+                match output {
+                    Some(Output::Title) => {
+                        if let Some(title) = &scratchpad_window.title {
+                            print!("{}", title)
+                        };
+                    },
+                    None => (),
                 };
                 state.update_scratchpad_title(scratchpad_number, scratchpad_window.title.clone())?;
                 let Some(workspace_id) = scratchpad_window.workspace_id else {

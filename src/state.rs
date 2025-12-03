@@ -112,7 +112,7 @@ impl State {
             return Ok(());
         };
         scratchpad.title = title;
-        Ok(())
+        self.update()
     }
 }
 
