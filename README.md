@@ -1,6 +1,6 @@
 # Dynamic Niri Scratchpad
 
-Dynamically assign windows as scratchpads against numerical register.
+Dynamically assign windows as scratchpads against numerical register. The scratchpad will also manage windows that have been deleted since running the command last. If you invoke `niri-scratchpad create 1` and 1 register has been deleted since last excution, it will bind the currently focused window to that register instead as a scratchpad. 
 
 ```kdl
     workspace "stash" {
@@ -26,10 +26,3 @@ It's just a rust binary, you'll need to build it with niri_ipc crate and serde. 
     niri-scratchpad.url = "github:argosnothing/niri-scratchpad";
 ```
 
-## Roadmap
-Assuming niri doesn't implement scratchpads natively ( We all pray ), by priority: 
-
-1. Scratchpad deletion 
-    * Windows tracked as a scratchpad should also be deleted from the tracked scratchpad list, freeing a spot. 
-2. Spawn support
-  This would require a diff mechanism than indexes, as spawn would need to have the command as part of the arg and i'd need to do matching off title or app_id
