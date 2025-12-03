@@ -7,6 +7,7 @@ use std::{fs, io};
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Scratchpad {
     pub title: Option<String>,
+    pub app_id: Option<String>,
     pub id: u64,
     pub command: Option<Vec<String>>,
     pub scratchpad_number: i32,
@@ -69,6 +70,7 @@ impl State {
         scratchpad_number: i32,
         id: u64,
         title: Option<String>,
+        app_id: Option<String>,
         command_str: Option<String>,
     ) -> Result<()> {
         self.scratchpads.push(Scratchpad {
@@ -80,6 +82,7 @@ impl State {
                     .collect::<Vec<String>>()
             }),
             scratchpad_number,
+            app_id,
             title,
         });
         Ok(())
@@ -99,19 +102,15 @@ impl State {
             .cloned()
     }
 
-    pub fn update_scratchpad_title(
-        &mut self,
-        scratchpad_number: i32,
-        title: Option<String>,
-    ) -> Result<()> {
+    pub fn update_scratchpad(&mut self, scratchpad_update:Scratchpad) -> Result<()> {
         let Some(scratchpad) = self
             .scratchpads
             .iter_mut()
-            .find(|scratchpad| scratchpad.scratchpad_number == scratchpad_number)
+            .find(|scratchpad| scratchpad.scratchpad_number == scratchpad_update.scratchpad_number)
         else {
             return Ok(());
         };
-        scratchpad.title = title;
+        *scratchpad = scratchpad_update;
         self.update()
     }
 }

@@ -46,6 +46,7 @@ fn main() -> std::io::Result<()> {
                         scratchpad_number,
                         window.id,
                         window.title,
+                        window.app_id,
                         output,
                         current_workspace.id,
                     )?;
@@ -59,10 +60,7 @@ fn main() -> std::io::Result<()> {
             scratchpad_number,
             output,
         } => {
-            match output {
-                Some(Output::Title) => print!(""),
-                None => (),
-            };
+            if output.is_some() { print!("") };
             match scratchpad_check(&mut socket, &state, scratchpad_number) {
                 Ok(Some(_)) => {
                     state.delete_scratchpad(scratchpad_number)?;
@@ -71,15 +69,25 @@ fn main() -> std::io::Result<()> {
                 Err(_) => return Ok(()),
             };
         }
-        args::Action::Get { scratchpad_number, output } => {
-            match output {
-                Output::Title => {
-                    if let Some(scratchpad) = state.get_scratchpad_by_number(scratchpad_number){
-                        if let Some(title) = scratchpad.title { print!("{}", title) };
-                    };
-                },
+        args::Action::Get {
+            scratchpad_number,
+            output,
+        } => {
+        let Some(scratchpad) = state.get_scratchpad_by_number(scratchpad_number) else {
+            return Ok(());
+        };
+        match output {
+            Output::Title => {
+                if let Some(title) = scratchpad.title {
+                    print!("{}", title)
+                };
             }
-        },
+            Output::AppId => {
+                if let Some(app_id) = scratchpad.app_id {
+                    print!("{}", app_id)
+                }
+            },
+        }},
     };
 
     Ok(())
@@ -107,6 +115,7 @@ fn handle_focused_window(
     scratchpad_number: i32,
     window_id: u64,
     title: Option<String>,
+    app_id: Option<String>,
     output: Option<Output>,
     current_workspace_id: u64,
 ) -> std::io::Result<()> {
@@ -128,10 +137,21 @@ fn handle_focused_window(
                         if let Some(title) = &scratchpad_window.title {
                             print!("{}", title)
                         };
-                    },
+                    }
+                    Some(Output::AppId) => {
+                        if let Some(app_id) = &scratchpad_window.app_id {
+                            print!("{}", app_id)
+                        };
+                    }
                     None => (),
                 };
-                state.update_scratchpad_title(scratchpad_number, scratchpad_window.title.clone())?;
+                state.update_scratchpad(Scratchpad {
+                    scratchpad_number,
+                    title: scratchpad_window.title.clone(),
+                    app_id: scratchpad_window.app_id.clone(),
+                    id: scratchpad_window.id,
+                    command: None,
+                })?;
                 let Some(workspace_id) = scratchpad_window.workspace_id else {
                     return Ok(());
                 };
@@ -150,20 +170,24 @@ fn handle_focused_window(
                 state.delete_scratchpad(scratchpad_number)?;
                 if let Some(output) = output {
                     match output {
-                        // The focused window is the new assigned window for this output
                         Output::Title => {
                             if let Some(title) = &title {
                                 print!("{}", title);
                             };
                         }
+                        Output::AppId => {
+                            if let Some(app_id) = &app_id {
+                                print!("{}", app_id);
+                            };
+                        }
                     };
                 };
-                state.add_scratchpad(scratchpad_number, window_id, title, None)?;
+                state.add_scratchpad(scratchpad_number, window_id, title, app_id, None)?;
                 state.update()?;
             }
         },
         Ok(None) => {
-            state.add_scratchpad(scratchpad_number, window_id, title, None)?;
+            state.add_scratchpad(scratchpad_number, window_id, title, app_id, None)?;
             state.update()?;
         }
         Err(_) => return Ok(()),

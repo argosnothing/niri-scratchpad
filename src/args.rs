@@ -22,6 +22,7 @@ pub enum Action {
 #[value(rename_all = "lowercase")]
 pub enum Output {
     Title,
+    AppId
 }
 
 #[derive(Parser, Debug)]
