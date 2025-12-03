@@ -14,13 +14,16 @@ You also will need to add this to your niri config:
 
 For binding to a keybind you would do: 
 ```kdl
-    Mod+Q            { spawn "niri-scratchpad" "1"; }
+    Mod+Q            { spawn "niri-scratchpad" "create" "1"; }
 ```
 This will take the currently focused window and bind it to niri-scratchpad index 1. Pressing this keybind again will move the scratchpad to the stash workspace. 
 
 
 ## Removing Scratchpads
-Currently scratchpad data is saved to `XDG_RUNTIME_DIR` under `niri-scratchpad.json`. Currently the only way to remove a scratchpad would be to simply delete that file and readd scratches.
+```
+niri-scratchpad delete 1
+```
+delete scratchpad at 1 register
 
 ## Installation
 It's just a rust binary, you'll need to build it with niri_ipc crate and serde. I provide a flake you can also consume as an input. 
@@ -31,9 +34,7 @@ It's just a rust binary, you'll need to build it with niri_ipc crate and serde. 
 ## Roadmap
 Assuming niri doesn't implement scratchpads natively ( We all pray ), by priority: 
 
-1. Flag arguments ( currently scratchpad simply parses the first argument as a scratchpad index. )
-2. Scratchpad deletion 
-    * Typing `niri-scratchpad -d 1` should unbind the window from that scratchpad index.
+1. Scratchpad deletion 
     * Windows tracked as a scratchpad should also be deleted from the tracked scratchpad list, freeing a spot. 
-4. Spawn support
+2. Spawn support
   This would require a diff mechanism than indexes, as spawn would need to have the command as part of the arg and i'd need to do matching off title or app_id
