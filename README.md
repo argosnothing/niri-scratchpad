@@ -42,4 +42,4 @@ To put it in your path on nix:
 
 Additional goodies: 
 Niri scratchpad currently supports per command output of scratchpad data through the --output option as well as a dedicated get action for titles. This allows you to create things like dynamic buttons that show the title of the scratchpad on them. 
-https://cdn.discordapp.com/attachments/1133342558165151778/1445860834302759054/tmp.Q9FEivTv68.mp4?ex=6931e255&is=693090d5&hm=fcd525e9c568f61b6194b8d18fa93078dbb11a04a675a301296eaa8f6c182eb5&
+![tmp iekuBMuMPc](https://github.com/user-attachments/assets/6ee1c705-b165-48bd-8916-0721cc4d2bb8)
