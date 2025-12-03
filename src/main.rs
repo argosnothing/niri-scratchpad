@@ -1,5 +1,5 @@
-use niri_ipc::{Request, Response, Action::{Spawn}};
 use niri_ipc::socket::Socket;
+use niri_ipc::{Action::Spawn, Request, Response};
 use state::State;
 
 use crate::state::AddResult::{Added, AlreadyExists};
@@ -22,25 +22,28 @@ fn main() -> std::io::Result<()> {
 
     if let Some(scratchpad_number) = args.next().and_then(|s| s.parse::<i32>().ok()) {
         match state_file {
-            Ok(mut state) => {
-                match focused_window {
-                    Some(window) => {
-                        match state.add_scratchpad(scratchpad_number, window.id, None) {
-                            Added => {
-                                state.update()?;
-                            },
-                            AlreadyExists(scratchpad) => {
-                                ipc::stash(&mut socket, &state)?;
-                                ipc::summon(&mut socket, &scratchpad)?;
-                            },
+            Ok(mut state) => match focused_window {
+                Some(window) => match state.add_scratchpad(scratchpad_number, window.id, None) {
+                    Added => {
+                        state.update()?;
+                    }
+                    AlreadyExists(scratchpad) => {
+                        if window.id == scratchpad.id {
+                            ipc::stash(&mut socket, &state)?;
+                        } else {
+                            ipc::summon(&mut socket, &scratchpad)?;
                         }
-                    },
-                    None => {
-                        let Some(scratchpad) = state.scratchpads.iter().find(|scratchpad| scratchpad.scratchpad_number == scratchpad_number) else {
-                            return Ok(());
-                        };
+                    }
+                },
+                None => {
+                    if let Some(scratchpad) = state
+                        .scratchpads
+                        .iter()
+                        .find(|scratchpad| scratchpad.scratchpad_number == scratchpad_number)
+                    {
                         ipc::summon(&mut socket, scratchpad)?;
-                    },
+                        return Ok(());
+                    };
                 }
             },
             Err(err) => eprintln!("{}", err),
