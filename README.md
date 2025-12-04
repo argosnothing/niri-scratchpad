@@ -35,7 +35,8 @@ A separate command is available for removing a scratchpad at a particular regist
 * `niri-scratchpad get <scratchpad_number> [title, appid]`
 * `help`
   
-`--output` provides the property to standard out after command execution. 
+* `--output` provides the property to standard out after command execution.
+* `--as-float` during new scratchpad registration to a window, also put that window into floating mode.
 
 ## Installation
 It's just a rust binary, you'll need to build it with `niri_ipc` `serde` and `clap` crates. I provide a flake you can also consume as an input. 
