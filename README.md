@@ -1,7 +1,7 @@
 # Dynamic Niri Scratchpad
-
 Dynamically assign windows as scratchpads against a numerical register. 
 
+## Setup
 You will need a static workspace called `stash` declared somewhere in you kdl config. This will be where a stashed scratchpad lives.
 ```kdl
     workspace "stash" {
@@ -22,8 +22,6 @@ A separate command is available for removing a scratchpad at a particular regist
 delete scratchpad at register 1
 
 ## Command interface: 
---output provides the property to standard out after comman execution. 
-
 * `niri-scratchpad create <scratchpad_number>`
   * options
     * `-o, --output [title, appid]`
@@ -32,7 +30,9 @@ delete scratchpad at register 1
   * options
     * `-o, --output [title, appid]`
 * `niri-scratchpad get <scratchpad_number> [title, appid]`
-* `help` 
+* `help`
+  
+`--output` provides the property to standard out after command execution. 
 
 ## Installation
 It's just a rust binary, you'll need to build it with `niri_ipc` `serde` and `clap` crates. I provide a flake you can also consume as an input. 
