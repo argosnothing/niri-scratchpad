@@ -21,8 +21,8 @@ A separate command is available for removing a scratchpad at a particular regist
 ```kdl
     Mod+Ctrl+Q            { spawn "niri-scratchpad" "delete" "1"; }
 ```
-* delete scratchpad at register 1
-* this register will now be available again for the `niri-scratchpad create 1` command
+* Delete scratchpad at register 1
+* This register will now be available again for the `niri-scratchpad create 1` command
 
 ## Command interface: 
 * `niri-scratchpad create <scratchpad_number>`
@@ -34,9 +34,9 @@ A separate command is available for removing a scratchpad at a particular regist
     * `-o, --output [title, appid]`
 * `niri-scratchpad get <scratchpad_number> [title, appid]`
 * `help`
-  
-* `--output` provides the property to standard out after command execution.
-* `--as-float` during new scratchpad registration to a window, also put that window into floating mode.
+
+`--output` provides the property to standard out after command execution.  
+`--as-float` during new scratchpad registration to a window, also put that window into floating mode.
 
 ## Installation
 It's just a rust binary, you'll need to build it with `niri_ipc` `serde` and `clap` crates. I provide a flake you can also consume as an input. 
