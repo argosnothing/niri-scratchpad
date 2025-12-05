@@ -47,7 +47,7 @@ It's just a rust binary:
 for `x86_64` I provide the executable directly. Download it, put it somewhere at `chmod +x niri-scratchpad`. Then run it with the options to use it.
 
 ## Building
-Please use v0.9 branch as main will have heavy dev for a little bit. 
+Please use `v0.9` branch as main will have heavy dev for a little bit. 
 
 Dependencies:
 * `rust`
@@ -65,7 +65,6 @@ inputs {
 
 To put it in your path on nix:
 ```nix
-
     environment.systemPackages = [
       inputs.niri-scratchpad.packages.${pkgs.system}.default
     ];
