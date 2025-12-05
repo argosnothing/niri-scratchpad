@@ -197,6 +197,9 @@ fn handle_focused_window(
                     None,
                 )?;
                 state.update()?;
+                if as_float {
+                    set_floating(socket, context.window_id)?;
+                }
             }
         },
         Ok(None) => {
