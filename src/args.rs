@@ -1,6 +1,7 @@
 use clap::{Parser, Subcommand, ValueEnum};
+use serde::{Serialize, Deserialize};
 
-#[derive(Subcommand, Debug)]
+#[derive(Subcommand, Debug, Serialize, Deserialize)]
 pub enum Action {
     Create {
         scratchpad_number: i32,
@@ -22,7 +23,7 @@ pub enum Action {
     Daemon
 }
 
-#[derive(ValueEnum, Clone, Debug)]
+#[derive(ValueEnum, Clone, Debug, Serialize, Deserialize)]
 #[value(rename_all = "lowercase")]
 pub enum Output {
     Title,
