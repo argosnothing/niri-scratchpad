@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{env::var, io::{Result}, path::PathBuf, hash::{Hash, Hasher}, fs, io};
+use std::{env::var, io::{Result}, path::PathBuf, hash::{Hash}, fs, io};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct Scratchpad {
@@ -19,10 +19,10 @@ pub enum AddResult {
     AlreadyExists(Scratchpad),
 }
 
-pub enum ScratchpadUpdate<'a> {
+pub enum ScratchpadUpdate {
     Add(Scratchpad),
-    Update(&'a Scratchpad),
-    Delete(&'a Scratchpad),
+    Update(Scratchpad),
+    Delete(i32),
 }
 
 impl State {
@@ -114,14 +114,12 @@ impl State {
                             found_scratchpad.scratchpad_number == scratchpad.scratchpad_number
                         })
                     {
-                        stored_scratchpad.title = scratchpad.title.clone();
-                        stored_scratchpad.id = scratchpad.id;
-                        stored_scratchpad.app_id = scratchpad.app_id.clone();
+                        *stored_scratchpad = scratchpad;
                     }
                 }
-                ScratchpadUpdate::Delete(scratchpad) => {
+                ScratchpadUpdate::Delete(scratchpad_number) => {
                     self.scratchpads.retain(|stored_scratchpad| {
-                        stored_scratchpad.scratchpad_number != scratchpad.scratchpad_number
+                        stored_scratchpad.scratchpad_number != scratchpad_number
                     })
                 }
             };

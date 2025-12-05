@@ -94,6 +94,7 @@ fn main() -> Result<()> {
             scratchpad_number,
             output,
         } => {
+            sync_state(&mut socket, &mut state)?;
             let Some(scratchpad) = state.get_scratchpad_by_number(scratchpad_number) else {
                 return Ok(());
             };
@@ -110,6 +111,9 @@ fn main() -> Result<()> {
                 }
             }
         }
+        args::Action::Sync => {
+            sync_state(&mut socket, &mut state)?;
+        },
     };
 
     Ok(())
@@ -145,7 +149,6 @@ fn handle_focused_window(
                 let Ok(Response::Windows(windows)) = socket.send(Request::Windows)? else {
                     return Ok(());
                 };
-
                 let Some(scratchpad_window) = windows
                     .iter()
                     .find(|w| w.id == scratchpad_with_status.scratchpad.id)
@@ -264,5 +267,6 @@ fn sync_state(socket: &mut Socket, state: &mut State) -> Result<()> {
     let Ok(scratchpad_statuses) = scratchpad_action::get_all_scratchpad_status(socket, tracked_scratchpads) else {
         return Ok(());
     };
-    state.syncronize_scratchpads(scratchpad_statuses)
+    state.syncronize_scratchpads(scratchpad_statuses)?;
+    state.update()
 }

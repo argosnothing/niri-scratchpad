@@ -99,32 +99,29 @@ pub fn check_status(socket: &mut Socket, scratchpad: &Scratchpad) -> Result<Scra
     }
 }
 
-pub fn get_all_scratchpad_status<'a>(
+pub fn get_all_scratchpad_status(
     socket: &mut Socket,
-    scratchpads: Vec<&'a Scratchpad>,
-) -> Result<Vec<ScratchpadUpdate<'a>>> {
+    scratchpads: Vec<&Scratchpad>,
+) -> Result<Vec<ScratchpadUpdate>> {
     let mut scratchpad_state: Vec<ScratchpadUpdate> = Vec::new();
     let Ok(Response::Windows(windows)) = socket.send(Request::Windows)? else {
         return Ok(scratchpad_state); //return an empty map
     };
-    match scratchpads
-        .iter()
-        .find(|scratchpad| !windows.iter().any(|window| window.id == scratchpad.id))
-    {
-        Some(orphaned_scratchpad) => {
-            scratchpad_state.push(ScratchpadUpdate::Delete(orphaned_scratchpad))
-        }
-        None => {}
+    if let Some(orphaned_scratchpad) = scratchpads
+            .iter()
+            .find(|scratchpad| !windows.iter().any(|window| window.id == scratchpad.id)) {
+        scratchpad_state.push(ScratchpadUpdate::Delete(orphaned_scratchpad.scratchpad_number))
     };
     for window in windows {
-        match scratchpads
+        if let Some(scratchpad) = scratchpads
             .iter()
-            .find(|scratchpad| scratchpad.id == window.id)
-        {
-            Some(scratchpad) => {
-                scratchpad_state.push(ScratchpadUpdate::Update(scratchpad));
-            }
-            None => {}
+            .find(|scratchpad| scratchpad.id == window.id) {
+            scratchpad_state.push(ScratchpadUpdate::Update(Scratchpad {
+                id: window.id,
+                title: window.title.clone(),
+                app_id: window.app_id.clone(),
+                ..**scratchpad
+            }));
         };
     }
     Ok(scratchpad_state)
