@@ -10,6 +10,7 @@ use state::State;
 pub mod args;
 pub mod scratchpad_action;
 pub mod state;
+pub mod daemon;
 
 struct ScratchpadWithStatus {
     status: ScratchpadStatus,
@@ -113,6 +114,10 @@ fn main() -> Result<()> {
         }
         args::Action::Sync => {
             sync_state(&mut socket, &mut state)?;
+        },
+        args::Action::Daemon => {
+            daemon::run_daemon();
+            return Ok(());
         },
     };
 

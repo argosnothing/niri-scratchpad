@@ -18,7 +18,8 @@ pub enum Action {
         scratchpad_number: i32,
         output: Output
     },
-    Sync
+    Sync,
+    Daemon
 }
 
 #[derive(ValueEnum, Clone, Debug)]
