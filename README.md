@@ -68,7 +68,7 @@ Dependencies:
 ## Nix (flakes)
 ```nix
 inputs {
-    niri-scratchpad.url = "github:argosnothing/niri-scratchpad/v0.9";
+    niri-scratchpad.url = "github:argosnothing/niri-scratchpad/v1.0";
 }
 ```
 
