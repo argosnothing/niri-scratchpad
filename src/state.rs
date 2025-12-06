@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{env::var, io::{Result}, path::PathBuf, hash::{Hash}, fs, io};
+use std::{io::{Result}, hash::{Hash}};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct Scratchpad {
@@ -26,43 +26,10 @@ pub enum ScratchpadUpdate {
 }
 
 impl State {
-    pub fn new() -> Result<Self> {
-        let state_path = Self::get_state_path()?;
-
-        if state_path.exists() {
-            let contents = fs::read_to_string(&state_path)?;
-            let state: State = serde_json::from_str(&contents)?;
-            Ok(state)
-        } else {
-            let state = State {
-                scratchpads: vec![],
-            };
-            let json = serde_json::to_string_pretty(&state)?;
-            if let Some(parent) = state_path.parent() {
-                fs::create_dir_all(parent)?;
-            }
-            fs::write(&state_path, json)?;
-            Ok(state)
+    pub fn new() -> Self {
+        State {
+            scratchpads: vec![],
         }
-    }
-
-    pub fn update(&self) -> Result<()> {
-        let state_path = Self::get_state_path()?;
-        if state_path.exists() {
-            let json = serde_json::to_string_pretty(&self)?;
-            if let Some(parent) = state_path.parent() {
-                fs::create_dir_all(parent)?;
-            }
-            fs::write(&state_path, json)?;
-            return Ok(());
-        }
-        Ok(())
-    }
-
-    fn get_state_path() -> Result<PathBuf> {
-        let runtime_dir = var("XDG_RUNTIME_DIR")
-            .map_err(|_| io::Error::new(io::ErrorKind::NotFound, "XDG_RUNTIME_DIR not set"))?;
-        Ok(PathBuf::from(runtime_dir).join("niri-scratchpad.json"))
     }
 
     pub fn add_scratchpad(
@@ -84,7 +51,6 @@ impl State {
     pub fn delete_scratchpad(&mut self, scratchpad_number: i32) -> Result<()> {
         self.scratchpads
             .retain(|scratchpad| scratchpad.scratchpad_number != scratchpad_number);
-        self.update()?;
         Ok(())
     }
 
@@ -134,14 +100,12 @@ impl State {
             return Ok(());
         };
         *scratchpad = scratchpad_update;
-        self.update()
+        Ok(())
     }
 }
 
 impl Default for State {
     fn default() -> Self {
-        Self::new().unwrap_or_else(|_| State {
-            scratchpads: vec![],
-        })
+        Self::new()
     }
 }

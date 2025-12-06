@@ -23,7 +23,7 @@ pub fn run_daemon() -> Result<()> {
         std::fs::remove_file(&socket_path)?;
     }
     let listener = UnixListener::bind(&socket_path)?;
-    let mut state = State::new()?;
+    let mut state = State::new();
     
     for stream in listener.incoming() {
         match stream {
@@ -202,7 +202,6 @@ fn handle_focused_window(
                     scratchpad_number
                 });
                 
-                state.update()?;
                 if as_float {
                     set_floating(socket, context.window_id)?;
                 }
@@ -217,7 +216,6 @@ fn handle_focused_window(
                 id: context.window_id,
                 scratchpad_number
             });
-            state.update()?;
             if as_float {
                 set_floating(socket, context.window_id)?;
             }
@@ -249,8 +247,7 @@ fn sync_state(socket: &mut Socket, state: &mut State) -> Result<()> {
     let Ok(scratchpad_statuses) = crate::scratchpad_action::get_all_scratchpad_status(socket, tracked_scratchpads) else {
         return Ok(());
     };
-    state.syncronize_scratchpads(scratchpad_statuses);
-    state.update()
+    state.syncronize_scratchpads(scratchpad_statuses)
 }
 
 fn get_socket_path() -> Result<PathBuf> {

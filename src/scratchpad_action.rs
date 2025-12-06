@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io::Result};
+use std::io::Result;
 
 pub enum ScratchpadStatus {
     WindowMapped,
@@ -11,7 +11,7 @@ use niri_ipc::{
     Action::{FocusWindow, MoveWindowToFloating, MoveWindowToMonitor, MoveWindowToWorkspace},
     Request, Response,
 };
-// Ensures all scratchpads are stashed
+
 pub fn stash(socket: &mut Socket, state: &State, scratchpad_number: Option<i32>) -> Result<()> {
     let Ok(Response::Windows(windows)) = socket.send(Request::Windows)? else {
         return Ok(());
