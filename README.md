@@ -78,3 +78,7 @@ To put it in your path on nix:
       inputs.niri-scratchpad.packages.${pkgs.system}.default
     ];
 ```
+
+## Extra Resources for scratchpads in niri
+* Static scratchpads you can bind with a spawn command [gvolpe](https://github.com/gvolpe/niri-scratchpad)
+* [niri scratchpad discussion](https://github.com/YaLTeR/niri/discussions/329)
