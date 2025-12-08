@@ -39,12 +39,13 @@ binds {
 ## Command interface:
 * `niri-scratchpad daemon` Start the niri-scratchpad daemon
 * `niri-scratchpad create <scratchpad_number>` 
-  * Info: create **OR** summon a scratchpad window at `<scratchpad_number>`
+  * *Info*: create **OR** summon a scratchpad window at `<scratchpad_number>`
   * options
     * `-o, --output [title, appid]`
     * `--as-float`
 * `niri-scratchpad delete <scratchpad_number>`  
-  * Info: delete a scratchpad at `<scratchpad_number>`, the deleted scratchpad will have its window summoned to curent workspace
+  * *Info*: delete a scratchpad at `<scratchpad_number>`.   
+       this deleted scratchpad will have its window summoned to curent workspace
   * options
     * `-o, --output [title, appid]`
 * `niri-scratchpad get <scratchpad_number> [title, appid]`
