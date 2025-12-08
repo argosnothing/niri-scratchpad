@@ -30,7 +30,7 @@
       {
         packages.default = rustPlatform.buildRustPackage {
           pname = "niri-scratchpad";
-          version = "0.1.0";
+          version = "1.1.0";
           src = ./.;
           cargoLock = {
             lockFile = ./Cargo.lock;
