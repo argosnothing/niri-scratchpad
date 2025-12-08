@@ -44,7 +44,16 @@ pub fn stash(socket: &mut Socket, state: &State, scratchpad_number: Option<i32>)
     Ok(())
 }
 
-pub fn summon(socket: &mut Socket, scratchpad: &Scratchpad) -> Result<()> {
+pub enum ScratchpadInformation<'a> {
+    Id(i32),
+    Scratchpad(&'a Scratchpad),
+}
+
+pub fn summon(
+    socket: &mut Socket,
+    state: &State,
+    scratchpad_info: ScratchpadInformation,
+) -> Result<()> {
     let Ok(Response::FocusedOutput(Some(focused_output))) = socket.send(Request::FocusedOutput)?
     else {
         return Ok(());
@@ -55,6 +64,18 @@ pub fn summon(socket: &mut Socket, scratchpad: &Scratchpad) -> Result<()> {
     let Ok(Response::Workspaces(workspaces)) = socket.send(Request::Workspaces)? else {
         return Ok(());
     };
+    let scratchpad: &Scratchpad;
+    match scratchpad_info {
+        ScratchpadInformation::Id(id) => {
+            if let Some(scratch) = state.get_scratchpad_ref_by_number(id) {
+                scratchpad = scratch;
+            } else {
+                return Ok(());
+            }
+        },
+        ScratchpadInformation::Scratchpad(scratch) => { scratchpad = scratch },
+    };
+
     if let Some(focused_window) = focused_window {
         if focused_window.id == scratchpad.id {
             return Ok(());
@@ -108,14 +129,18 @@ pub fn get_all_scratchpad_status(
         return Ok(scratchpad_state); //return an empty map
     };
     if let Some(orphaned_scratchpad) = scratchpads
-            .iter()
-            .find(|scratchpad| !windows.iter().any(|window| window.id == scratchpad.id)) {
-        scratchpad_state.push(ScratchpadUpdate::Delete(orphaned_scratchpad.scratchpad_number))
+        .iter()
+        .find(|scratchpad| !windows.iter().any(|window| window.id == scratchpad.id))
+    {
+        scratchpad_state.push(ScratchpadUpdate::Delete(
+            orphaned_scratchpad.scratchpad_number,
+        ))
     };
     for window in windows {
         if let Some(scratchpad) = scratchpads
             .iter()
-            .find(|scratchpad| scratchpad.id == window.id) {
+            .find(|scratchpad| scratchpad.id == window.id)
+        {
             scratchpad_state.push(ScratchpadUpdate::Update(Scratchpad {
                 id: window.id,
                 title: window.title.clone(),

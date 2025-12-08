@@ -61,6 +61,12 @@ impl State {
             .cloned()
     }
 
+    pub fn get_scratchpad_ref_by_number(&self, scratchpad_number: i32) -> Option<&Scratchpad> {
+        self.scratchpads
+            .iter()
+            .find(|scratchpad| scratchpad.scratchpad_number == scratchpad_number)
+    }
+
     pub fn get_tracked_scratchpads(&self) -> Vec<&Scratchpad> {
         self.scratchpads.iter().collect()
     }

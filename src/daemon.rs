@@ -1,7 +1,7 @@
 use std::{os::unix::net::UnixListener, io::{BufRead, BufReader, Write, Result}, path::PathBuf, env::var};
-use crate::args::{Action, Output};
+use crate::{args::{Action, Output}, scratchpad_action};
 use crate::state::{State, Scratchpad};
-use crate::scratchpad_action::{ScratchpadStatus, set_floating};
+use crate::scratchpad_action::{ScratchpadStatus, ScratchpadInformation, set_floating};
 use niri_ipc::socket::Socket;
 use niri_ipc::{Request as NiriRequest, Response as NiriResponse};
 
@@ -89,6 +89,9 @@ fn handle_client(stream: std::os::unix::net::UnixStream, state: &mut State) -> R
                 String::new()
             } else {
                 if let Ok(Some(_)) = scratchpad_check(&mut socket, state, scratchpad_number) {
+                    let Ok(_) = scratchpad_action::summon(&mut socket, state, ScratchpadInformation::Id(scratchpad_number)) else {
+                        return Ok(());
+                    };
                     state.delete_scratchpad(scratchpad_number)?;
                 }
                 String::new()
@@ -127,7 +130,7 @@ fn scratchpad_check(
     let Some(scratchpad) = state.get_scratchpad_by_number(scratchpad_number) else {
         return Ok(None);
     };
-    match crate::scratchpad_action::check_status(socket, &scratchpad) {
+    match scratchpad_action::check_status(socket, &scratchpad) {
         Ok(status) => Ok(Some(ScratchpadWithStatus { scratchpad, status })),
         Err(_) => Ok(None),
     }
@@ -172,13 +175,13 @@ fn handle_focused_window(
                 };
 
                 if workspace_id == context.current_workspace_id {
-                    crate::scratchpad_action::stash(
+                    scratchpad_action::stash(
                         socket,
                         state,
                         Some(scratchpad_with_status.scratchpad.scratchpad_number),
                     )?;
                 } else {
-                    crate::scratchpad_action::summon(socket, &scratchpad_with_status.scratchpad)?;
+                    scratchpad_action::summon(socket, state, ScratchpadInformation::Scratchpad(&scratchpad_with_status.scratchpad))?;
                 }
                 
                 Ok(output_value)
@@ -238,13 +241,13 @@ fn handle_no_focused_window(
         return Ok(());
     };
 
-    crate::scratchpad_action::summon(socket, scratchpad)?;
+    scratchpad_action::summon(socket, state, ScratchpadInformation::Scratchpad(scratchpad))?;
     Ok(())
 }
 
 fn sync_state(socket: &mut Socket, state: &mut State) -> Result<()> {
     let tracked_scratchpads = state.get_tracked_scratchpads();
-    let Ok(scratchpad_statuses) = crate::scratchpad_action::get_all_scratchpad_status(socket, tracked_scratchpads) else {
+    let Ok(scratchpad_statuses) = scratchpad_action::get_all_scratchpad_status(socket, tracked_scratchpads) else {
         return Ok(());
     };
     state.syncronize_scratchpads(scratchpad_statuses)
