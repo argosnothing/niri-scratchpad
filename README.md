@@ -37,7 +37,7 @@ binds {
 * This register will now be available again for the `niri-scratchpad create 1` command
 
 ## Command interface:
-* `niri-scratchpad daemon` Start the niri-scratchpad daemon
+* `niri-scratchpad daemon` Start the niri-scratchpad daemon ( I advise to have niri run this command on startup ) 
 * `niri-scratchpad create <scratchpad_number>` 
   * *Info*: create **OR** summon a scratchpad window at `<scratchpad_number>`
   * options
