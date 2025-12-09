@@ -75,9 +75,9 @@ inputs {
 
 To put it in your path on nix:
 ```nix
-    environment.systemPackages = [
-      inputs.niri-scratchpad.packages.${pkgs.system}.default
-    ];
+environment.systemPackages = [
+  inputs.niri-scratchpad.packages.${pkgs.system}.default
+];
 ```
 
 ## Extra Resources for scratchpads in niri
