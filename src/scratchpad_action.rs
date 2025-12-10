@@ -12,18 +12,23 @@ use niri_ipc::{
     Request, Response,
 };
 
-pub fn stash(socket: &mut Socket, state: &State, scratchpad_number: Option<i32>) -> Result<()> {
-    let Ok(Response::Windows(windows)) = socket.send(Request::Windows)? else {
-        return Ok(());
-    };
-    let Ok(Response::Workspaces(workspaces)) = socket.send(Request::Workspaces)? else {
-        return Ok(());
+pub fn stash(socket: &mut Socket, state: &State, scratchpad_number: Option<i32>) {
+    let (windows, workspaces) = match (
+        socket.send(Request::Windows),
+        socket.send(Request::Workspaces),
+    ) {
+        (Ok(Ok(Response::Windows(windows))), Ok(Ok(Response::Workspaces(workspaces)))) => {
+            (windows, workspaces)
+        }
+        _ => {
+            return;
+        }
     };
     let Some(stash_workspace) = workspaces
         .iter()
         .find(|workspace| workspace.name.as_deref() == Some("stash"))
     else {
-        return Ok(());
+        return;
     };
     for window in windows.iter().filter(|window| match scratchpad_number {
         Some(scratch_num) => state.scratchpads.iter().any(|scratchpad| {
@@ -41,7 +46,6 @@ pub fn stash(socket: &mut Socket, state: &State, scratchpad_number: Option<i32>)
         };
         let _ = socket.send(Request::Action(move_action));
     }
-    Ok(())
 }
 
 pub enum ScratchpadInformation<'a> {
@@ -108,16 +112,16 @@ pub fn set_floating(socket: &mut Socket, window_id: u64) {
     let floating_action = MoveWindowToFloating {
         id: (Some(window_id)),
     };
-    let _ = socket.send(Request::Action(floating_action));
+    socket.send(Request::Action(floating_action)).ok();
 }
 
-pub fn check_status(socket: &mut Socket, scratchpad: &Scratchpad) -> Result<ScratchpadStatus> {
-    let Ok(Response::Windows(windows)) = socket.send(Request::Windows)? else {
-        return Ok(ScratchpadStatus::WindowDropped);
+pub fn check_status(socket: &mut Socket, scratchpad: &Scratchpad) -> ScratchpadStatus {
+    let Ok(Ok(Response::Windows(windows))) = socket.send(Request::Windows) else {
+        return ScratchpadStatus::WindowDropped;
     };
     match windows.iter().find(|window| scratchpad.id == window.id) {
-        Some(_) => Ok(ScratchpadStatus::WindowMapped),
-        None => Ok(ScratchpadStatus::WindowDropped),
+        Some(_) => ScratchpadStatus::WindowMapped,
+        None => ScratchpadStatus::WindowDropped,
     }
 }
 
