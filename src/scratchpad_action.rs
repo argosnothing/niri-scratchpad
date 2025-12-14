@@ -61,7 +61,7 @@ pub fn summon(
     let (focused_output, focused_window, workspaces) = match (
         socket.send(Request::FocusedOutput)?,
         socket.send(Request::FocusedWindow)?,
-        socket.send(Request::Workspaces)?,
+        socket.send(Request::WorkspacesWithHidden)?,
     ) {
         (
             Ok(Response::FocusedOutput(Some(focused_output))),
